@@ -33,6 +33,17 @@ let serviceable = [
 	'COVID Restric - 247',
 	'COVID Restric- Chiranjeevi',
 	'COVID Restric- Stech',
+	'247 Around',
+	'Missing Parts',
+	'Airtech_ - Mumbai',
+	'Ajay_- Bangalore',
+	'Asian Electronics_- Hyderabad',
+	'Atiksha_Electronics - Pune',
+	'Chaya_-Jaipur',
+	'SB_Electronics - Guwhati',
+	'Skanda_Enterprise - Bangalore',
+	'CRM - Hyderabad',
+	'Akash - Pune'
 ];
 let nonServiceable = [
 	'Refund',
@@ -257,7 +268,7 @@ const getService = (data) => {
 };
 const getReason = (data) => {
 	if (serviceable.includes(data.cf.cf_pending_on)) {
-		if (data.cf.cf_pending_on.match('247')) {
+		if (data.cf.cf_pending_on.match('247') || data.cf.cf_pending_on.match('247 Around')) {
 			return '247 Around';
 		} else if (data.cf.cf_pending_on.match('S-Tech')) {
 			return 'S-Tech';
@@ -265,7 +276,25 @@ const getReason = (data) => {
 			return 'Jeeves';
 		} else if (data.cf.cf_pending_on.match('Chiranjeev')) {
 			return 'Chiranjeev';
-		}
+		}else if (data.cf.cf_pending_on.match('Airtech_ - Mumbai')) {
+			return 'Airtech_ - Mumbai';
+		} else if (data.cf.cf_pending_on.match('Ajay_- Bangalore')) {
+			return 'Ajay_- Bangalore';
+		} else if (data.cf.cf_pending_on.match('Asian Electronics_- Hyderabad')) {
+			return 'Asian Electronics_- Hyderabad';
+		}else if (data.cf.cf_pending_on.match('Atiksha_Electronics - Pune')) {
+			return 'Atiksha_Electronics - Pune';
+		} else if (data.cf.cf_pending_on.match('Chaya_-Jaipur')) {
+			return 'Chaya_-Jaipur';
+		} else if (data.cf.cf_pending_on.match('SB_Electronics - Guwhati')) {
+			return 'SB_Electronics - Guwhati';
+		} else if (data.cf.cf_pending_on.match('Skanda_Enterprise - Bangalore')) {
+			return 'Skanda_Enterprise - Bangalore';
+		}else if (data.cf.cf_pending_on.match('CRM - Hyderabad')) {
+			return 'CRM - Hyderabad';
+		} else if (data.cf.cf_pending_on.match('Akash - Pune')) {
+			return 'Chaya_-Jaipur';
+		} 
 		return 'Others';
 	} else if (nonServiceable.includes(data.cf.cf_pending_on)) {
 		return 'Product Non-Serviceable';
@@ -282,7 +311,7 @@ const getAction = (data) => {
 	return null;
 };
 const getPending = (data) => {
-	if (data.cf.cf_pending_on.match('Lifelong')) {
+	if (data.cf.cf_pending_on.match('Lifelong') || data.cf.cf_pending_on.match('Online')) {
 		return 'Lifelong';
 	}
 	if (
@@ -306,6 +335,15 @@ const getPending = (data) => {
 			'S-Tech',
 			'Warehouse Spares',
 			'Jeeves',
+			'Airtech_ - Mumbai',
+			'Ajay_- Bangalore',
+			'Asian Electronics_- Hyderabad',
+			'Atiksha_Electronics - Pune',
+			'Chaya_-Jaipur',
+			'SB_Electronics - Guwhati',
+			'Skanda_Enterprise - Bangalore',
+			'CRM - Hyderabad',
+			'Akash - Pune'
 		].includes(data.cf.cf_pending_on)
 	) {
 		return 'Service';
@@ -326,6 +364,10 @@ const getPending = (data) => {
 	if (['Customer', 'Customer attempt 2', 'Customer Closed'].includes(data.cf.cf_pending_on)) {
 		return 'Customer';
 	}
+	if(data.cf.cf_pending_on.match('Missing Parts')){
+		return 'Missing Parts';
+	}
+	return null;
 };
 const createPath = (data) => {
 	let newArr = [];
@@ -341,6 +383,54 @@ const capitalize = (phrase) => {
 		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(' ');
 };
+const checkCompleinType = (data)=>{
+	if([
+		'Service',
+		'Service-Part Pending',
+		'Replacement',
+		'Refund'
+	].includes.data.cf.cf_call_status_1){
+		return 'Product Complaint';
+	}
+	else if(data.cf.cf_call_status_1.match('Feedback')){
+		return 'Feedback';
+	}
+	else if(data.cf.cf_call_status_1.match('Installation Request')){
+		return 'Installation Request';
+	}
+}
+const checkAgent = (data)=>{
+	if(data.assigneeId === '258372000000080000'){
+		return '82019842533';
+	}
+	else if(data.assigneeId === '258372000002727000' || data.assigneeId === '258372000050525000'){
+		return '82030837986';
+	}
+	else if(data.assigneeId === '258372000016938000' || data.assigneeId === '258372000021277000'){
+		return '82030830417';
+	}
+	else if(data.assigneeId === '258372000026515000'){
+		return '82030813544';
+	}
+	else if(data.assigneeId === '258372000055243000'){
+		return '82030271558';
+	}
+	else if(data.assigneeId === '258372000055600000'){
+		return '82030813961';
+	}
+	else if(data.assigneeId === '258372000082859000'){
+		return '82030832581';
+	}
+	else if(data.assigneeId === '258372000103598000'){
+		return '82030812309';
+	}
+	else if(data.assigneeId === '258372000105792000'){
+		return '82030831398';
+	}
+	else if(data.assigneeId === '258372000113983000'){
+		return '82030813104';
+	}
+}
 const createTicket = async (data, attachment) => {
 	console.log('original data', data);
 	let url = `${OPTIONS.freshDesk.API}tickets`;
@@ -357,11 +447,12 @@ const createTicket = async (data, attachment) => {
 		phone: data.phone,
 		subject: data.subject,
 		unique_external_id: data.contactId,
+		responder_id:checkAgent(data),
 		'custom_fields[cf_category]': obj && obj.category ? capitalize(obj.category) : null,
 		'custom_fields[cf_subcategory]':
 			obj && obj.subCategory ? capitalize(obj.subCategory) : null,
 		'custom_fields[cf_model]': obj && obj.category && obj.subCategory ? obj.modelNumber : null,
-		'custom_fields[cf_level1]': 'Product Complaint',
+		'custom_fields[cf_level1]': checkCompleinType(data),
 		'custom_fields[cf_warranty_status]': 'Under Warranty',
 		'custom_fields[cf_issue_date]': data.cf.cf_issue_date,
 		'custom_fields[cf_courier_partner]': data.cf.cf_courier_partner,
@@ -440,7 +531,6 @@ const addData = async (from, limit) => {
 				await downloadFile(attachments.data[i]);
 			}
 			console.log('attachment length', attachments.data.length);
-
 			// fetch threads
 			const threads = await getAllThreads(data[i].id);
 			console.log('threads from zoho', threads.length);
@@ -452,9 +542,6 @@ const addData = async (from, limit) => {
 			for (let j = 0; j < conversation.length; j++) {
 				let thread = await getAZohoTicketThreads(data[i].id, conversation[j].id);
 				for (let a = 0; a < thread.attachments.length; a++) {
-					if (thread.attachments.length > 3) {
-						console.log(thread.attachments[a]);
-					}
 					await downloadFile(thread.attachments[a]);
 				}
 				console.log('thread id', thread.id);
@@ -503,4 +590,4 @@ const addData = async (from, limit) => {
 	}
 };
 
-addData(0, 1);
+addData(0, 3);
