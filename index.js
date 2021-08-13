@@ -10,10 +10,10 @@ const fs = require('fs');
 const path = require('path');
 const modelNames = OPTIONS.modelsList;
 let token = process.env.FRESH_DESK_API_KEY;
-	const auth = 'Basic ' + new Buffer.from(token + ':' + 'X').toString('base64');
-	const headers = {
-		Authorization: auth,
-	};
+const auth = 'Basic ' + new Buffer.from(token + ':' + 'X').toString('base64');
+const headers = {
+	Authorization: auth,
+};
 let serviceable = [
 	'Treadmill',
 	'Treadmill Query',
@@ -389,15 +389,16 @@ const checkCompleinType = (data)=>{
 		'Service-Part Pending',
 		'Replacement',
 		'Refund'
-	].includes.data.cf.cf_call_status_1){
+	].includes(data.cf.cf_call_status_1)){
 		return 'Product Complaint';
 	}
-	else if(data.cf.cf_call_status_1.match('Feedback')){
+	else if(data.cf.cf_call_status_1 && data.cf.cf_call_status_1.match('Feedback')){
 		return 'Feedback';
 	}
-	else if(data.cf.cf_call_status_1.match('Installation Request')){
+	else if(data.cf.cf_call_status_1 && data.cf.cf_call_status_1.match('Installation Request')){
 		return 'Installation Request';
 	}
+	return null;
 }
 const checkAgent = (data)=>{
 	if(data.assigneeId === '258372000000080000'){
@@ -544,24 +545,25 @@ const addData = async (from, limit) => {
 				for (let a = 0; a < thread.attachments.length; a++) {
 					await downloadFile(thread.attachments[a]);
 				}
-				console.log('thread id', thread.id);
-				console.log('thread attachment length', thread.attachments.length);
+				console.log('zoho thread id', thread.id);
+				console.log('zoho thread attachment length', thread.attachments.length);
 				let reply = {
 					body: thread.content,
-					user_id: 82025059616,
+					user_id: 82019842533,
 					// from_email: thread.data.from,
 				};
 				let url = `${OPTIONS.freshDesk.API}tickets/${ticket.id}/reply`;
-				// const options = {
-				// 	username: `${process.env.FRESH_DESK_API_KEY}:X`,
-				// 	password: ``,
-				// };
-				// const resultData = await axios.post(url, reply, { auth: options });
 				const resultData = await unirest
 					.post(url)
 					.headers(headers)
 					.field(reply)
 					.attach('attachments[]', createPath(thread.attachments));
+					if(thread.attachments.length > 0){
+						console.log(thread.attachments)
+						console.log(resultData.body);
+						console.log(resultData.headers['x-request-id'])
+					}
+				console.log('fresh desk repliy id', resultData.body.id);
 			}
 
 			const comments = await getZohoTicketComments(data[i].id);
@@ -572,7 +574,7 @@ const addData = async (from, limit) => {
 				}
 				let reply = {
 					body: comments[k].content,
-					user_id: 82025059616,
+					user_id: 82019842533,
 				};
 				let url = `${OPTIONS.freshDesk.API}tickets/${ticket.id}/notes`;
 				// const resultData = await axios.post(url, reply, { auth: options });
@@ -582,12 +584,12 @@ const addData = async (from, limit) => {
 					.headers(headers)
 					.field(reply)
 					.attach('attachments[]', createPath(comments[k].attachments));
-				console.log('zoho post replies id', resultData.body.id);
+				console.log('fresh desh notes id', resultData.body.id);
 			}
 		}
 	} catch (e) {
-		// console.log(e);
+		console.log(e);
 	}
 };
 
-addData(0, 3);
+addData(0, 1);
