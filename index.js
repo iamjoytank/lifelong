@@ -559,9 +559,9 @@ const addData = async (from, limit) => {
 					.field(reply)
 					.attach('attachments[]', createPath(thread.attachments));
 					if(thread.attachments.length > 0){
-						console.log(thread.attachments)
-						console.log(resultData.body);
-						console.log(resultData.headers['x-request-id'])
+						// console.log(thread.attachments)
+						// console.log(resultData.body);
+						// console.log(resultData.headers['x-request-id'])
 					}
 				console.log('fresh desk repliy id', resultData.body.id);
 			}
