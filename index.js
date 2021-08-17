@@ -8,6 +8,10 @@ const moment = require('moment');
 const unirest = require('unirest');
 const fs = require('fs');
 const path = require('path');
+
+var request = require('request');
+var FormData = require('form-data');
+
 const modelNames = OPTIONS.modelsList;
 let token = process.env.FRESH_DESK_API_KEY;
 const auth = 'Basic ' + new Buffer.from(token + ':' + 'X').toString('base64');
@@ -376,6 +380,15 @@ const createPath = (data) => {
 	}
 	return newArr;
 };
+const createEncodingPath = (data) => {
+	let newArr = [];
+	for (let i = 0; i < data.length; i++) {
+		newArr.push(
+			fs.createReadStream(`${__dirname}/attachment/${data[i].name}`, { encoding: 'UTF8' })
+		);
+	}
+	return newArr;
+};
 const capitalize = (phrase) => {
 	return phrase
 		.toLowerCase()
@@ -560,8 +573,8 @@ const addData = async (from, limit) => {
 					.attach('attachments[]', createPath(thread.attachments));
 					if(thread.attachments.length > 0){
 						// console.log(thread.attachments)
-						// console.log(resultData.body);
-						// console.log(resultData.headers['x-request-id'])
+						console.log(resultData.body);
+						console.log(resultData.headers['x-request-id'])
 					}
 				console.log('fresh desk repliy id', resultData.body.id);
 			}
@@ -593,3 +606,4 @@ const addData = async (from, limit) => {
 };
 
 addData(0, 1);
+
